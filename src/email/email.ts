@@ -1,57 +1,52 @@
-import * as AWS from "aws-sdk";
+import {
+  DeleteVerifiedEmailAddressCommand,
+  ListVerifiedEmailAddressesCommand,
+  SendRawEmailCommand,
+  VerifyEmailIdentityCommand,
+} from "@aws-sdk/client-ses";
+import { sesClient } from "../aws/clients";
 
-AWS.config.update({
-  region: process.env.AWS_REGION
-});
-
-const ses = new AWS.SES();
 const email = "utkarsh.bisht7@gmail.com";
 
 export const verify = async () => {
-  var params = {
-    EmailAddress: email
-  };
+  const command = new VerifyEmailIdentityCommand({
+    EmailAddress: email,
+  });
+  return await sesClient.send(command);
+};
 
-  return await (ses.verifyEmailAddress(params).promise());
-}
-
-// Listing the verified email addresses.
 export const listVerifiedEmails = async () => {
-  return await (ses.listVerifiedEmailAddresses().promise());
-}
+  const command = new ListVerifiedEmailAddressesCommand({});
+  return await sesClient.send(command);
+};
 
-// Deleting verified email addresses.
-export const deleteEmailAddress = async (email: string) => {
-  var params = {
-    EmailAddress: email
-  };
+export const deleteEmailAddress = async (address: string) => {
+  const command = new DeleteVerifiedEmailAddressCommand({
+    EmailAddress: address,
+  });
+  return await sesClient.send(command);
+};
 
-  return await (ses.deleteVerifiedEmailAddress(params).promise());
-}
-
-// Sending RAW email including an attachment.
 export const sendEmail = async () => {
-  var ses_mail = "From: 'AWS SES' <" + email + ">\n";
-  ses_mail = ses_mail + "To: " + "utkarsh.bisht@outlook.com" + "\n";
-  ses_mail = ses_mail + "Subject: AWS SES Attachment Example\n";
-  ses_mail = ses_mail + "MIME-Version: 1.0\n";
-  ses_mail = ses_mail + "Content-Type: multipart/mixed; boundary=\"NextPart\"\n\n";
-  ses_mail = ses_mail + "--NextPart\n";
-  // Body
-  ses_mail = ses_mail + "Content-Type: text/html; charset=us-ascii\n\n";
-  ses_mail = ses_mail + "This is the body of the email.\n\n";
-  ses_mail = ses_mail + "--NextPart\n";
-  // Attachment
-  ses_mail = ses_mail + "Content-Type: text/plain;\n";
-  ses_mail = ses_mail + "Content-Disposition: attachment; filename=\"attachment.txt\"\n\n";
-  ses_mail = ses_mail + "AWS Tutorial Series - Really cool file attachment!" + "\n\n";
-  ses_mail = ses_mail + "--NextPart--";
+  let sesMail = "From: 'AWS SES' <" + email + ">\n";
+  sesMail = sesMail + "To: " + "utkarsh.bisht@outlook.com" + "\n";
+  sesMail = sesMail + "Subject: AWS SES Attachment Example\n";
+  sesMail = sesMail + "MIME-Version: 1.0\n";
+  sesMail = sesMail + 'Content-Type: multipart/mixed; boundary="NextPart"\n\n';
+  sesMail = sesMail + "--NextPart\n";
+  sesMail = sesMail + "Content-Type: text/html; charset=us-ascii\n\n";
+  sesMail = sesMail + "This is the body of the email.\n\n";
+  sesMail = sesMail + "--NextPart\n";
+  sesMail = sesMail + "Content-Type: text/plain;\n";
+  sesMail = sesMail + 'Content-Disposition: attachment; filename="attachment.txt"\n\n';
+  sesMail = sesMail + "AWS Tutorial Series - Really cool file attachment!" + "\n\n";
+  sesMail = sesMail + "--NextPart--";
 
-  var params = {
-    RawMessage: { Data: Buffer.from(ses_mail) },
+  const command = new SendRawEmailCommand({
+    RawMessage: { Data: Buffer.from(sesMail) },
     Destinations: ["utkarsh.bisht@outlook.com"],
-    Source: "'AWS Tutorial Series' <" + email + ">'"
-  };
+    Source: "'AWS Tutorial Series' <" + email + ">'",
+  });
 
-  return await (ses.sendRawEmail(params).promise());
-}
+  return await sesClient.send(command);
+};
