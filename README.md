@@ -49,7 +49,7 @@ FORK_COUNT=2
 }
 ```
 
-`msgType` must be `"PROMOTIONAL"` or `"Transactional"`.
+`msgType` must be `"Promotional"` or `"Transactional"`.
 
 ## Stack
 
