@@ -5,7 +5,9 @@
   "main": "dist/index.js",
   "scripts": {
     "start": "tsx ./src/index.ts",
-    "compile": "rimraf ./dist/ && tsc -b ./tsconfig.compile.json",
+    "build:scraper": "npm run build --prefix extract_institutes",
+    "postinstall": "npm run build:scraper",
+    "compile": "npm run build:scraper && rimraf ./dist/ && tsc -b ./tsconfig.compile.json",
     "build": "tsc -b ./tsconfig.compile.json",
     "rmdist": "rimraf ./dist/",
     "typecheck": "tsc -b",
@@ -28,7 +30,8 @@
     "@aws-sdk/client-ses": "^3.840.0",
     "@aws-sdk/client-sns": "^3.840.0",
     "dotenv": "^16.5.0",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "institute-scraper": "file:extract_institutes"
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",

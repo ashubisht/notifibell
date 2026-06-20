@@ -1,11 +1,18 @@
 import {
   DeleteVerifiedEmailAddressCommand,
   ListVerifiedEmailAddressesCommand,
+  SendEmailCommand,
   SendRawEmailCommand,
   VerifyEmailIdentityCommand,
 } from "@aws-sdk/client-ses";
 import { sesClient } from "../../aws/clients";
 import { getEmailAddresses } from "../../config/env";
+
+export interface TemplatedEmailMessage {
+  to: string;
+  subject: string;
+  body: string;
+}
 
 export async function verifyEmailIdentity(email: string) {
   const command = new VerifyEmailIdentityCommand({ EmailAddress: email });
@@ -19,6 +26,35 @@ export async function listVerifiedEmails() {
 
 export async function deleteVerifiedEmail(address: string) {
   const command = new DeleteVerifiedEmailAddressCommand({ EmailAddress: address });
+  return sesClient.send(command);
+}
+
+export async function sendTemplatedEmail(message: TemplatedEmailMessage) {
+  const { from } = getEmailAddresses();
+
+  const command = new SendEmailCommand({
+    Source: from,
+    Destination: {
+      ToAddresses: [message.to],
+    },
+    Message: {
+      Subject: {
+        Data: message.subject,
+        Charset: "UTF-8",
+      },
+      Body: {
+        Html: {
+          Data: message.body,
+          Charset: "UTF-8",
+        },
+        Text: {
+          Data: message.body.replace(/<[^>]+>/g, ""),
+          Charset: "UTF-8",
+        },
+      },
+    },
+  });
+
   return sesClient.send(command);
 }
 

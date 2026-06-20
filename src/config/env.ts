@@ -20,6 +20,9 @@ export const config = {
     from: process.env.SES_FROM_EMAIL,
     to: process.env.SES_TO_EMAIL,
   },
+  institutes: {
+    googlePlacesApiKey: process.env.GOOGLE_PLACES_API_KEY,
+  },
   cluster: {
     forkCount:
       process.env.FORK_COUNT !== undefined ? parseInt(process.env.FORK_COUNT, 10) : undefined,
@@ -35,4 +38,8 @@ export function getEmailAddresses(): { from: string; to: string } {
     from: requireEnv("SES_FROM_EMAIL"),
     to: requireEnv("SES_TO_EMAIL"),
   };
+}
+
+export function getGooglePlacesApiKey(): string {
+  return requireEnv("GOOGLE_PLACES_API_KEY");
 }
